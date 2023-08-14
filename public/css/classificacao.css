@@ -1,0 +1,96 @@
+#table-rounds {
+    border: 1px solid #bbb;
+    height: 8rem;
+    padding: 1.5rem;
+}
+
+#table-rounds.finalizado {
+    cursor: pointer;
+}
+
+#round {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#table-rounds img {
+    max-height: 2.5rem;
+    margin-left: 2px;
+    margin-right: 2px;
+    text-align: center;
+}
+
+#table-rounds p {
+    font-size: 14px;
+    width: auto !important;
+    text-align: center;
+    margin-bottom: -0.2rem;
+}
+
+#table-rounds a {
+    font-size: 14px;
+    width: auto !important;
+    text-align: center;
+    margin-top: 0.6rem;
+    display: block;
+    color: white;
+    padding: 2px;
+    text-decoration: none;
+}
+
+#div-table-rounds {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+#div-rounds {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#div-rounds i {
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+#div-rounds i:hover {
+    color: #1976d2;
+}
+
+#div-rounds a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#btn-show-details {
+    background: gray;
+    border-radius: 8px;
+    width: 6rem;
+    margin: auto;
+}
+
+#btn-show-details:hover {
+    background: #1976d2;
+}
+
+input[type=number] {
+    width: 2.5rem;
+    height: 2.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+/* Fixa o cabeçalho da tabela */
+.table thead th {
+    position: sticky;
+    top: -1px;
+    background-color: #f5f5f5; /* Adapte a cor de fundo conforme necessário */
+    z-index: 1;
+}
+
+/* Ajusta a largura das células do cabeçalho para corresponder ao conteúdo */
+.table th {
+    white-space: nowrap;
+}

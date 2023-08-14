@@ -1,0 +1,32 @@
+.content-body {
+
+}
+
+.content-body img {
+    width: 5rem;
+}
+
+.header-details {
+    /* background-color: #163b61; */
+    height: 10rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.header-details h1 {
+    font-size: 4rem;
+}
+
+.statistics-details {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+    width: auto;
+}
+
+.statistics-details p {
+    margin: auto;
+    width: 10rem;
+}

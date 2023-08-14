@@ -1,0 +1,30 @@
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #DDD;
+}
+
+.form-login {
+    flex-basis: 450px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+}
+
+.card-footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.msg-alert {
+    position: absolute !important;
+    left: 80%;
+    top: 2%;
+}
