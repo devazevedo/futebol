@@ -1,0 +1,15 @@
+.form-control[type="file"] {
+    opacity: 0;
+    position: absolute;
+    width: 7rem;
+    height: 8rem;
+    overflow: hidden;
+    top: 2rem;
+    cursor: pointer;
+}
+
+.profile-image {
+    max-width: 25%;
+    display: block;
+    margin-top: 10px;
+}

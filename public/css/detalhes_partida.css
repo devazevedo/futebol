@@ -1,9 +1,5 @@
-.content-body {
-
-}
-
 .content-body img {
-    width: 5rem;
+    width: 9rem;
 }
 
 .header-details {
@@ -24,6 +20,7 @@
     align-items: center;
     text-align: center;
     width: auto;
+    height: 10px;
 }
 
 .statistics-details p {

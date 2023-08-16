@@ -2,19 +2,85 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Futebol_model;
 use Illuminate\Http\Request;
 use App\Models\Users;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Controller
 {
     public function index()
     {
+        // $users = new Users;
+        // $hashedPassword = Hash::make('a');
+        // $users->updatePassword(2, $hashedPassword);
 
         if (session()->has('userId')) {
-            // trata o programa tendo usuario logado
-            return view('home');
+            $futebol = new Futebol_model;
+            $users = new Users;
+
+            $user_id = session()->get('userId');
+
+            $user = $users->getUsers($user_id);
+            $campeonato = $futebol->getCampeonatoById(10);
+            $previsoesRodadaAtual = $futebol->getPrevisoes($user_id, null, $campeonato[0]->rodada_atual);
+            $previsaoByUser = $futebol->getPrevisoes($user_id);
+
+            if(!empty($previsaoByUser)) {
+                $previsoes_certas = 0;
+                $previsoes_erradas = 0;
+                $previsoes_parcial = 0;
+                
+                foreach ($previsaoByUser as $previsao) {
+                    switch ($previsao->status) {
+                        case 'certo':
+                            $previsoes_certas += 1;
+                            break;
+                        case 'errado':
+                            $previsoes_erradas += 1;
+                            break;
+                        case 'parcial':
+                            $previsoes_parcial += 1;
+                            break;
+                        
+                        default:
+                            
+                            break;
+                    }
+                }
+    
+                $total_previsoes = $previsoes_certas + $previsoes_erradas + $previsoes_parcial;
+    
+                $porcentagem_certas = ($previsoes_certas / $total_previsoes) * 100;
+                $porcentagem_erradas = ($previsoes_erradas / $total_previsoes) * 100;
+                $porcentagem_parcial = (($previsoes_parcial / $total_previsoes) * 100) / 2;
+    
+                $porcentagem_acertos = ($porcentagem_certas + $porcentagem_parcial);
+    
+                $pontuacao = 0;
+    
+                foreach ($previsoesRodadaAtual as $previsao) {
+                    if($previsao->status === 'parcial') {
+                        $pontuacao += 1;
+                    } else if ($previsao->status === 'certo') {
+                        $pontuacao += 3;
+                    }
+                }
+            } else {
+                $pontuacao = 0;
+                $porcentagem_acertos = 0;
+            }
+
+            $data = [
+                'pontuacao_ao_vivo' => $pontuacao,
+                'porcentagem_acertos' => $porcentagem_acertos,
+                'saldo' => $user[0]->saldo
+            ];
+
+            return view('home', $data);
         } else {
             $data = [
                 'show' => true,
@@ -33,6 +99,7 @@ class User extends Controller
     {
 
         $model = new Users;
+        $futebol = new Futebol_model;
 
         $request->validate(
             [
@@ -48,7 +115,7 @@ class User extends Controller
         $email = $request->input('email');
         $password = $request->input('password');
 
-        $user = $model->getUserByEmail($email);
+        $user = $model->getUsers(null, $email);
 
         if (!empty($user)) {
 
@@ -61,10 +128,67 @@ class User extends Controller
                     'lastname' => $user[0]->lastname,
                     'email' => $user[0]->email,
                     'phone' => $user[0]->phone,
-                    'isAdmin' => $user[0]->admin
+                    'isAdmin' => $user[0]->admin,
+                    'profileImg' => $user[0]->imagem
                 ]);
 
-                return view('home');
+                $campeonato = $futebol->getCampeonatoById(10);
+                $previsoesRodadaAtual = $futebol->getPrevisoes($user[0]->id, null, $campeonato[0]->rodada_atual);
+                $previsaoByUser = $futebol->getPrevisoes($user[0]->id);
+
+                if(!empty($previsaoByUser)) {
+                    $previsoes_certas = 0;
+                    $previsoes_erradas = 0;
+                    $previsoes_parcial = 0;
+                    
+                    foreach ($previsaoByUser as $previsao) {
+                        switch ($previsao->status) {
+                            case 'certo':
+                                $previsoes_certas += 1;
+                                break;
+                            case 'errado':
+                                $previsoes_erradas += 1;
+                                break;
+                            case 'parcial':
+                                $previsoes_parcial += 1;
+                                break;
+                            
+                            default:
+                                
+                                break;
+                        }
+                    }
+        
+                    $total_previsoes = $previsoes_certas + $previsoes_erradas + $previsoes_parcial;
+        
+                    $porcentagem_certas = ($previsoes_certas / $total_previsoes) * 100;
+                    $porcentagem_erradas = ($previsoes_erradas / $total_previsoes) * 100;
+                    $porcentagem_parcial = (($previsoes_parcial / $total_previsoes) * 100) / 2;
+        
+                    $porcentagem_acertos = ($porcentagem_certas + $porcentagem_parcial);
+        
+                    $pontuacao = 0;
+        
+                    foreach ($previsoesRodadaAtual as $previsao) {
+                        if($previsao->status === 'parcial') {
+                            $pontuacao += 1;
+                        } else if ($previsao->status === 'certo') {
+                            $pontuacao += 3;
+                        }
+                    }
+                } else {
+                    $pontuacao = 0;
+                    $porcentagem_acertos = 0;
+                }
+
+                $data = [
+                    'pontuacao_ao_vivo' => $pontuacao,
+                    'porcentagem_acertos' => $porcentagem_acertos,
+                    'saldo' => $user[0]->saldo
+                ];
+
+
+                return view('home', $data);
             } else {
                 echo 'deu ruim';
             }
@@ -108,7 +232,10 @@ class User extends Controller
                 'emailConfirm' => 'required',
                 'password' => 'required',
                 'passwordConfirm' => 'required',
-                'phone' => 'required'
+                'phone' => 'required',
+                'password' => [
+                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/',
+                ]
             ],
             [
                 'name.required' => 'Nome é um campo obrigatório!',
@@ -116,8 +243,9 @@ class User extends Controller
                 'email.required' => 'Email é um campo obrigatório!',
                 'emailConfirm.required' => 'Confirmação do email é um campo obrigatório!',
                 'password.required' => 'Senha é um campo obrigatório!',
+                'password.regex' => 'A senha deve conter pelo menos 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial!',
                 'passwordConfirm.required' => 'Confirmação de senha é um campo obrigatório!',
-                'phone.required' => 'Celular é um campo obrigatório!'
+                'phone.required' => 'Celular é um campo obrigatório!',
             ]
         );
 
@@ -153,7 +281,7 @@ class User extends Controller
             return view('register', $data);
         }
 
-        $user = $model->getUserByEmail($email);
+        $user = $model->getUsers(null, $email);
 
         if (!empty($user)) {
             $data = [
@@ -186,6 +314,94 @@ class User extends Controller
         ]);
 
         return view('login');
+    }
+
+    public function profile(Request $request)
+    {
+        $users = new Users;
+        $user_id = session()->get('userId');
+        $user = $users->getUsers($user_id);
+
+        if($request->isMethod('post')) {
+            $request->validate(
+                [
+                    'email' => 'required',
+                    'celular' => 'required',
+                ]
+            );
+
+            $email = $request->input('email');
+            $phone = preg_replace('/\D/', '', $request->input('celular'));
+            if(!empty($request->file('image')) && $user[0]->imagem !== $request->file('image')) {
+                if ($user[0]->imagem) {
+                    Storage::disk('public')->delete($user[0]->imagem);
+                }
+                $imagePath = $request->file('image')->store('img', 'public');
+                session()->put('profileImg', $imagePath);
+            } else {
+                $imagePath = $user[0]->imagem;
+            }
+
+            if($email !== $user[0]->email || $phone !== $user[0]->phone || !empty($request->file('image'))) {
+                $users->updateUser($user_id, $email, $phone, $imagePath);
+                Session::flash('success', 'Informações atualizadas com sucesso!');
+            }
+
+            $user = $users->getUsers($user_id);
+
+            if($request->input('currentPassword')) {
+                $request->validate(
+                    [
+                        'newPassword' => [
+                            'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/',
+                        ]
+                    ],
+                    [
+                        'newPassword.regex' => Session::flash('error', 'A senha deve conter pelo menos 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial!'),
+                    ]
+                );
+
+                if(Hash::check($request->input('currentPassword'), $user[0]->password)) {
+                    if ($request->input('newPassword') !== $request->input('confirmNewPassword')) {
+                        Session::flash('error', 'As senhas informadas não conferem!');
+
+                        $data = [
+                            'celular' => $user[0]->phone,
+                            'email' => $user[0]->email,
+                            'imagem' => $user[0]->imagem
+                        ];
+
+                        return view('profile', $data);
+                    } else {
+                        $hashedPassword = Hash::make($request->input('newPassword'));
+                        $users->updatePassword($user_id, $hashedPassword);
+                        Session::flash('success', 'Informações atualizadas com sucesso!');
+                    }
+                } else {
+                    Session::flash('error', 'A senha informada está incorreta');
+
+                    $data = [
+                        'celular' => $user[0]->phone,
+                        'email' => $user[0]->email,
+                        'imagem' => $user[0]->imagem
+                    ];
+
+                    return view('profile', $data);
+                }
+            }
+
+        }
+
+        $user = $users->getUsers($user_id);
+
+        $data = [
+            'celular' => $user[0]->phone,
+            'email' => $user[0]->email,
+            'imagem' => $user[0]->imagem
+        ];
+
+
+        return view('profile', $data);
     }
 
     // public function register_partners(Request $request)

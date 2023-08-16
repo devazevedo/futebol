@@ -16,9 +16,15 @@ class Futebol_model
         return DB::select("SELECT * FROM campeonatos WHERE id = ?", [$id]);
     }
 
-    public function getTimeById($id)
+    public function getTimes($id = null)
     {
-        return DB::select("SELECT * FROM times WHERE id = ?", [$id]);
+        $query = "SELECT * FROM times";
+
+        if(!empty($id)) {
+            $query .= " WHERE id = $id";
+        }
+
+        return DB::select($query);
     }
 
     public function insertTime($name, $id, $sigla, $escudo)
@@ -199,8 +205,10 @@ class Futebol_model
                 p.*, 
                 em.placar AS mandante_placar,
                 ev.placar AS visitante_placar,
+                tm.id AS time_mandante_id,
                 tm.name AS time_mandante_nome, 
                 tm.escudo AS time_mandante_escudo, 
+                tv.id AS time_visitante_id,
                 tv.name AS time_visitante_nome, 
                 tv.escudo AS time_visitante_escudo
             FROM partidas p
@@ -249,19 +257,9 @@ class Futebol_model
         return DB::select($query);
     }
 
-    public function getPrevisoesByUserIdAndRodada($user_id, $rodada)
-    {
-        return DB::select("SELECT * FROM previsoes WHERE user_id = ? AND rodada = ?", [$user_id, $rodada]);
-    }
-
-    public function getPrevisoesByIdPartida($partida_id)
-    {
-        return DB::select("SELECT * FROM previsoes WHERE partida_id = ?", [$partida_id]);
-    }
-
     public function updatePrevisao($id, $status) 
     {
-        return DB::update("UPDATE previsoes SET status = $status WHERE id = $id");
+        return DB::update("UPDATE previsoes SET status = '$status' WHERE id = $id");
     }
 
     public function updatePrevisaoUser($partidaId, $user_id, $placarMandante, $placarVisitante) 
@@ -269,9 +267,15 @@ class Futebol_model
         return DB::update("UPDATE previsoes SET placar_mandante = $placarMandante, placar_visitante = $placarVisitante WHERE partida_id = $partidaId AND user_id = $user_id");
     }
 
-    public function getJogadorById($jogadorId)
+    public function getJogadores($jogadorId = null)
     {
-        return DB::select("SELECT * FROM jogadores WHERE id = ?", [$jogadorId]);
+        $query = "SELECT * FROM jogadores";
+
+        if(!empty($id)) {
+            $query .= " WHERE id = $jogadorId";
+        }
+
+        return DB::select($query);
     }
 
     public function insertJogadores($id, $nome, $camisa, $posicao, $sigla)
@@ -303,16 +307,17 @@ class Futebol_model
         DB::insert($query, $values);
     }
 
-    public function insertGols($partida_id, $jogador_id, $minuto, $periodo, $penalti, $contra)
+    public function insertGols($partida_id, $jogador_id, $minuto, $periodo, $penalti, $contra, $time)
     {
-        $query = "INSERT INTO gols VALUES(0, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO gols VALUES(0, ?, ?, ?, ?, ?, ?, ?)";
         $values = [
             $partida_id,
             $jogador_id,
             $minuto,
             $periodo,
             $penalti,
-            $contra
+            $contra,
+            $time
         ];
 
         DB::insert($query, $values);
@@ -362,10 +367,24 @@ class Futebol_model
     {
         return DB::select("SELECT * FROM treinadores WHERE id = ?", [$id]);
     }
-
-    public function getPrevisoesByIdPartidaAndUser($user_id, $partida_id)
+    
+    public function getPrevisoes($user_id = null, $partida_id = null, $rodada = null)
     {
-        return DB::select("SELECT * FROM previsoes WHERE user_id = ? AND partida_id = ?", [$user_id, $partida_id]);
+        $query = "SELECT * FROM previsoes WHERE 1 = 1";
+
+        if(!empty($user_id)) {
+            $query .= " AND user_id = $user_id";
+        }
+
+        if(!empty($partida_id)) {
+            $query .= " AND partida_id = $partida_id";
+        }
+
+        if(!empty($rodada)) {
+            $query .= " AND rodada = $rodada";
+        }
+
+        return DB::select($query);
     }
 
     public function getStatusPartida($partida_id)
@@ -373,4 +392,103 @@ class Futebol_model
         return DB::select("SELECT status FROM partidas WHERE id = ?", [$partida_id]);
     }
 
+    public function getNumPrevisao($user_id, $rodada)
+    {
+        $query = "SELECT user_id, rodada, status, COUNT(*) AS quantidade
+                    FROM previsoes
+                    WHERE user_id = ? AND rodada = ?
+                    GROUP BY user_id, rodada, status";
+
+        $values = [
+            $user_id,
+            $rodada
+        ];
+
+        return DB::select($query, $values);
+    }
+
+    public function getGols($id_partida, $time)
+    {
+        return DB::select("SELECT * FROM gols g INNER JOIN jogadores j on g.jogador_id = j.id WHERE g.partida_id = ? AND g.time = ?", [$id_partida, $time]);
+    }
+
+    // querys para ajustar no banco de casa depois.
+    public function updateGols($id, $time)
+    {
+        return DB::update("UPDATE gols SET time = '$time' WHERE id = $id");
+    }
+
+    public function getGol($partida_id, $jogadorIdGol, $minutoGol)
+    {
+        $query = "SELECT id
+                    FROM gols
+                    WHERE partida_id = ? AND jogador_id = ? AND minuto = ?";
+
+        $values = [
+            $partida_id,
+            $jogadorIdGol,
+            $minutoGol
+        ];
+
+        return DB::select($query, $values);
+    }
+
+    public function updateStatusPartida($id, $status)
+    {
+        return DB::update("UPDATE partidas SET status = '$status' WHERE id = $id");
+    }
+
+    public function getMediaEstatisticasByIdTime($id_time)
+    {
+        return DB::select("SELECT
+                                AVG(posse_de_bola) as posse_de_bola,
+                                AVG(escanteios) as escanteios ,
+                                AVG(impedimentos) as impedimentos,
+                                AVG(faltas) as faltas,
+                                AVG(passes_total) as passes_total, 
+                                AVG(passes_completos) as passes_completos,
+                                AVG(passes_errados) as passes_errados,
+                                AVG(passe_precisao) as passe_precisao,
+                                AVG(finalizacao_total) as finalizacao_total,
+                                AVG(finalizacao_no_gol) as finalizacao_no_gol,
+                                AVG(finalizacao_pra_fora) as finalizacao_pra_fora,
+                                AVG(finalizacao_na_trave) as finalizacao_na_trave, 
+                                AVG(finalizacao_bloqueado) as finalizacao_bloqueado,
+                                AVG(finalizacao_precisao) as finalizacao_precisao,
+                                AVG(cartoes_amarelo) as cartoes_amarelo,
+                                AVG(cartoes_vermelho) as cartoes_vermelho,
+                                AVG(defesas) as defesas,
+                                AVG(desarmes) as desarmes 
+                            FROM estatisticas
+                            WHERE time_id = $id_time"
+                        );
+    }
+
+    // public function getEstatisticasMandanteByTimeId($id_time)
+    // {
+    //     return DB::select("SELECT e.*,
+    //                             CASE
+    //                                 WHEN id_time_mandante = $id_time THEN 'Mandante'
+    //                                 WHEN id_time_visitante = $id_time THEN 'Visitante'
+    //                                 ELSE 'Outro'
+    //                             END AS time
+    //                         FROM partidas p
+    //                         INNER JOIN estatisticas e ON e.partida_id = p.id AND e.time_id = $id_time
+    //                         WHERE id_time_mandante = $id_time"
+    //                     );
+    // }
+
+    // public function getEstatisticasVisitanteByTimeId($id_time)
+    // {
+    //     return DB::select("SELECT e.*,
+    //                             CASE
+    //                                 WHEN id_time_mandante = $id_time THEN 'Mandante'
+    //                                 WHEN id_time_visitante = $id_time THEN 'Visitante'
+    //                                 ELSE 'Outro'
+    //                             END AS time
+    //                         FROM partidas p
+    //                         INNER JOIN estatisticas e ON e.partida_id = p.id AND e.time_id = $id_time
+    //                         WHERE id_time_visitante = $id_time"
+    //                     );
+    // }
 }

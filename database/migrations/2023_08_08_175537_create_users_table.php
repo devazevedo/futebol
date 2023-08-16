@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('lastname', 50);
             $table->string('phone', 14);
             $table->boolean('admin')->default(0);
+            $table->float('saldo')->default(0);
             $table->timestamps();
         });
     }

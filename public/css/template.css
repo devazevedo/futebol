@@ -11,6 +11,13 @@ body {
     background-color: #ddd !important;
 }
 
+h1 {
+    color: #444 !important;
+    font-size: 1.8rem !important;
+    font-weight: 300 !important;
+    margin: 0 !important;  
+}
+
 body.hide-sidebar {
     grid-template-columns: 1fr;
     grid-template-areas: 
@@ -267,4 +274,35 @@ input[type=number] {
    -moz-appearance: textfield;
    appearance: textfield;
 
+}
+
+.summary-boxes {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.summary-box {
+    display: flex;
+    flex-grow: 1;
+    border-radius: 10px;
+    align-items: center;
+    color: #FFF;
+    padding: 10px;
+    flex-direction: column;
+    margin: 10px;
+    min-width: 200px;
+    max-width: 500px;
+}
+
+.summary-box .icon {
+    font-size: 3.5rem;
+}
+
+.summary-box .title {
+    font-size: 1.5rem;
+}
+
+.summary-box .value {
+    font-size: 2rem;
 }

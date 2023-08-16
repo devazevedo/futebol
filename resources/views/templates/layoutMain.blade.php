@@ -12,6 +12,10 @@
     <title>Predict n' Score</title>
 </head>
 
+@php
+    $profileImg = false;
+@endphp
+
 <body class="">
     <header class="header">
         <div class="logo">
@@ -27,11 +31,18 @@
         <div class="spacer"></div>
         <div class="dropdown">
             <div class="dropdown-button">
+                <img style="max-width: 2rem; background: white; padding: 4px; border-radius: 50%;" src="{{ session()->get('profileImg') ? asset(session()->get('profileImg')) : asset('img/user.png') }}" alt="">
                 <span class="ml-2">{{ session()->get('name') }}</span>
                 <i class="icofont-simple-down mx-2"></i>
             </div>
             <div class="dropdown-content">
                 <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="{{ route('profile') }}">
+                            <i class="icofont-user mx-2"></i>
+                            Perfil
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="{{ route('logout') }}">
                             <i class="icofont-logout mx-2"></i>
@@ -46,9 +57,21 @@
         <nav class="menu mt-3">
             <ul class="nav-list">
                 <li class="nav-item">
+                    <a href="{{ route('home') }}">
+                        <i class="icofont-home mr-2"></i>
+                        Home
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('minhas_previsoes') }}">
                         <i class="icofont-bullseye mr-2"></i>
                         Minhas previsões
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('estatisticas') }}">
+                        <i class="icofont-pie-chart mr-2"></i>
+                        Estatísticas
                     </a>
                 </li>
                 <li class="nav-item">
@@ -107,9 +130,7 @@
     </aside>
     @yield('conteudo')
     <footer class="footer">
-        <span>Desenvolvido com</span>
-        <span><i class="icofont-heart text-danger mx-1"></i></span>
-        <span>por devazevedo</span>
+        <span>Desenvolvido por dev.azevedo &copy;</span>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous">

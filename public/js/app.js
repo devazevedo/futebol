@@ -5,3 +5,12 @@
         body.classList.toggle('hide-sidebar')
     }
 })()
+
+function enabledFilter(e) {
+    const btn = document.getElementById('btn-filter');
+    if(e.value != '') {
+        btn.removeAttribute('disabled');
+    } else {
+        btn.setAttribute('disabled', true);
+    }
+}

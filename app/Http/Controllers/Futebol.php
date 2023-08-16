@@ -71,15 +71,19 @@ class Futebol extends Controller
         $estatisticasMandante = $model->getEstatisticaByIdPartida($id_partida, $partida[0]->id_time_mandante);
         $estatisticasVisitante = $model->getEstatisticaByIdPartida($id_partida, $partida[0]->id_time_visitante);
 
-        $timeMandante = $model->getTimeById($partida[0]->id_time_mandante);
-        $timeVisitante = $model->getTimeById($partida[0]->id_time_visitante);
+        $timeMandante = $model->getTimes($partida[0]->id_time_mandante);
+        $timeVisitante = $model->getTimes($partida[0]->id_time_visitante);
+        $golsMandante = $model->getGols($id_partida, 'mandante');
+        $golsVisitante = $model->getGols($id_partida, 'visitante');
 
         $data = [
             'partida' => $partida,
             'estatisticasMandante' => $estatisticasMandante,
             'estatisticasVisitante' => $estatisticasVisitante,
             'timeMandante' => $timeMandante,
-            'timeVisitante' => $timeVisitante
+            'timeVisitante' => $timeVisitante,
+            'golsMandante' => $golsMandante,
+            'golsVisitante' => $golsVisitante
         ];
 
         return view('detalhes_partida', $data);
@@ -109,14 +113,41 @@ class Futebol extends Controller
 
         $user_id = session()->get('userId');
 
-        $previsoes = $model->getPrevisoesByUserIdAndRodada($user_id, $rodadaNumero);
+        $previsoes = $model->getPrevisoes($user_id, null, $rodadaNumero);
+        $quantidadePrevisoes = $model->getNumPrevisao($user_id, $rodadaNumero);
+
+        $qtdPrevisaoParcial = 0;
+        $qtdPrevisaoErrada = 0;
+        $qtdPrevisaoCerta = 0;
+        $qtdPrevisaoAguardando = 0;
+
+        if(!empty($quantidadePrevisoes)) {
+            foreach ($quantidadePrevisoes as $qtdPrevisao) {
+                if($qtdPrevisao->status === 'parcial') {
+                    $qtdPrevisaoParcial = $qtdPrevisao->quantidade;
+                } else if ($qtdPrevisao->status === 'errado') {
+                    $qtdPrevisaoErrada = $qtdPrevisao->quantidade;
+                } else if ($qtdPrevisao->status === 'certo') {
+                    $qtdPrevisaoCerta = $qtdPrevisao->quantidade;
+                } else {
+                    $qtdPrevisaoAguardando = $qtdPrevisao->quantidade;
+                }
+            }
+        }
+
+        $pontuacao = ($qtdPrevisaoParcial * 1) + ($qtdPrevisaoCerta * 3);
 
         $data = [
             'rodada_atual' => $rodada_atual,
             'classificacao' => $classificacao,
             'previsoes' => $previsoes,
             'rodada_anterior' => $rodadaNumero - 1,
-            'rodada_seguinte' => $rodadaNumero + 1
+            'rodada_seguinte' => $rodadaNumero + 1,
+            'qtdPrevisaoParcial' => $qtdPrevisaoParcial,
+            'qtdPrevisaoErrada' => $qtdPrevisaoErrada,
+            'qtdPrevisaoCerta' => $qtdPrevisaoCerta,
+            'qtdPrevisaoAguardando' => $qtdPrevisaoAguardando,
+            'pontuacao' => $pontuacao
         ];
 
         return view('minhas_previsoes', $data);
@@ -132,7 +163,7 @@ class Futebol extends Controller
         $placarMandante = $request->input('placar_mandante');
         $placarVisitante = $request->input('placar_visitante');
         
-        $previsaoByRodada = $model->getPrevisoesByIdPartidaAndUser($user_id, $partidaId);
+        $previsaoByRodada = $model->getPrevisoes($user_id, $partidaId);
         
         $partida = $model->getPartidas($partidaId);
         $rodada = $partida[0]->rodada;
@@ -148,5 +179,32 @@ class Futebol extends Controller
         } else {
             return response()->json(['message' => 'Essa partida não permite mais o envio de previsões', 'status' => 0]);
         }
+    }
+
+    public function estatisticas(Request $request)
+    {
+        $model = new Futebol_model;
+
+        $campeonatos = $model->getCampeonatos();
+        $times = $model->getTimes();
+        $jogadores = $model->getJogadores();
+
+        $timeSelecionado = $request->input('time');
+
+        if(!empty($timeSelecionado)) {
+            $medias = $model->getMediaEstatisticasByIdTime($timeSelecionado);
+        } else {
+            $medias = [];
+        }
+
+        $data = [
+            'campeonatos' => $campeonatos,
+            'times' => $times,
+            'jogadores' => $jogadores,
+            'timeSelecionado' => $timeSelecionado,
+            'medias' => $medias
+        ];
+
+        return view('estatisticas', $data);
     }
 }
