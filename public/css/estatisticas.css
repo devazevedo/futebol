@@ -1,0 +1,8 @@
+.filters {
+    border: 1px solid #ccc;
+    height: 7rem;
+}
+
+.form-estatisticas {
+    display: flex;
+}

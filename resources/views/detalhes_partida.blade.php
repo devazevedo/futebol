@@ -22,6 +22,54 @@
                 <h1>{{ $estatisticasVisitante[0]->placar }}</h1>
                 <img src="{{ $timeVisitante[0]->escudo }}" alt="">
             </div>
+            <div style="display: flex;justify-content: space-evenly;">
+                <div style="display: flex; flex-direction: column; width: 15rem; height: 10rem; margin: 0px 0px 0px 8rem;">
+                    @foreach ($golsMandante as $gol)
+                        @php
+                            $pos = strpos($gol->minuto, ':');
+                            $minuto = substr($gol->minuto, 0, $pos);
+                            if ($gol->periodo === '1º tempo') {
+                                $periodo = '1T';
+                            } else if ($gol->periodo === '2º tempo') {
+                                $periodo = '2T';
+                            } else {
+                                $periodo = 'Intervalo';
+                            }
+
+                            if($gol->contra === 1) {
+                                $color = 'red';
+                            } else {
+                                $color = '';
+                            }
+
+                        @endphp
+                        <p style="font-size: 14px; color:{{ $color }};"><i class="icofont-soccer mr-2"></i> {{ $gol->nome }} {{ $minuto ? $minuto : 00 }}" ({{ $periodo }})</p>
+                    @endforeach
+                </div>
+                <div style="display: flex; flex-direction: column; width: 15rem; height: 10rem; margin: 0px 0px 0px -3rem;">
+                    @foreach ($golsVisitante as $gol)
+                        @php
+                            $pos = strpos($gol->minuto, ':');
+                            $minuto = substr($gol->minuto, 0, $pos);
+                            if ($gol->periodo === '1º tempo') {
+                                $periodo = '1T';
+                            } else if ($gol->periodo === '2º tempo') {
+                                $periodo = '2T';
+                            } else {
+                                $periodo = 'Intervalo';
+                            }
+
+                            if($gol->contra === 1) {
+                                $color = 'red';
+                            } else {
+                                $color = '';
+                            }
+
+                        @endphp
+                        <p style="font-size: 14px; color:{{ $color }};"><i class="icofont-soccer mr-2"></i> {{ $gol->nome }} {{ $minuto ? $minuto : 00 }}" ({{ $periodo }})</p>
+                    @endforeach
+                </div>
+            </div>
             <hr>
             <div class="content-details">
                 <div class="statistics-details">
@@ -61,15 +109,15 @@
                 </div>
                 <hr>
                 <div class="statistics-details">
-                    <p>{{ $estatisticasMandante[0]->faltas }}</p>
+                    <p>{{ $estatisticasMandante[0]->cartoes_amarelo }}</p>
                     <p style="width: 42rem;">Cartões amarelos</p>
-                    <p>{{ $estatisticasVisitante[0]->faltas }}</p>
+                    <p>{{ $estatisticasVisitante[0]->cartoes_amarelo }}</p>
                 </div>
                 <hr>
                 <div class="statistics-details">
-                    <p>{{ $estatisticasMandante[0]->faltas }}</p>
+                    <p>{{ $estatisticasMandante[0]->cartoes_vermelho }}</p>
                     <p style="width: 42rem;">Cartões vermelhos</p>
-                    <p>{{ $estatisticasVisitante[0]->faltas }}</p>
+                    <p>{{ $estatisticasVisitante[0]->cartoes_vermelho }}</p>
                 </div>
                 <hr>
                 <div class="statistics-details">

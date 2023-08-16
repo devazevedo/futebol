@@ -17,6 +17,8 @@ return new class extends Migration
             $table->integer('camisa');
             $table->string('posicao', 50);
             $table->string('sigla_posicao', 10);
+            $table->bigInteger('time_id');
+            $table->foreign('time_id')->references('id')->on('times');
         });
     }
 

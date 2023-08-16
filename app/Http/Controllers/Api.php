@@ -108,7 +108,7 @@ class Api extends Controller
                         $sigla_time = $posicoes['time']['sigla'];
                         $escudo_time = $posicoes['time']['escudo'];
 
-                        $time = $futebol->getTimeById($id_time);
+                        $time = $futebol->getTimes($id_time);
 
                         if (empty($time)) {
                             $futebol->insertTime($nome_time, $id_time, $sigla_time, $escudo_time);
@@ -196,7 +196,7 @@ class Api extends Controller
 
                 $estatisticaPartida = $futebol->getEstatisticaByIdPartida($partida->id);
 
-                if (empty($estatisticaPartida) && $partida->estadio === 'Não definido') {
+                if (empty($estatisticaPartida)) {
 
                     if (!$api) {
                         $data = [
@@ -214,7 +214,7 @@ class Api extends Controller
                     if ($response2->successful()) {
                         $dadosPartida = $response2->json();
 
-                        if ($partida->status === 'finalizado') {
+                        if ($dadosPartida['status'] === 'finalizado') {
 
                             //insercao estatisticas mandante
                             $placar_mandante = $dadosPartida['placar_mandante'];
@@ -254,11 +254,12 @@ class Api extends Controller
                                     $nomePosicao = 'Não definido';
                                     $sigla = 'ND';
                                 }
+                                $idTime = $dadosPartida['time_mandante']['time_id'];
                                 
-                                $jogadorById = $futebol->getJogadorById($jogadorId);
+                                $jogadorById = $futebol->getJogadores($jogadorId);
                                 
                                 if(empty($jogadorById)) {
-                                    $futebol->insertJogadores($jogadorId, $jogadorNome, $camisa, $nomePosicao, $sigla);
+                                    $futebol->insertJogadores($jogadorId, $jogadorNome, $camisa, $nomePosicao, $sigla, $idTime);
                                 }
 
                                 $futebol->insertEscalacaoPartida($partida->id, $jogadorId, null, $ordem, 1, 'mandante');
@@ -276,11 +277,12 @@ class Api extends Controller
                                     $nomePosicao = 'Não definido';
                                     $sigla = 'ND';
                                 }
+                                $idTime = $dadosPartida['time_mandante']['time_id'];
                                 
-                                $jogadorById = $futebol->getJogadorById($jogadorId);
+                                $jogadorById = $futebol->getJogadores($jogadorId);
                                 
                                 if(empty($jogadorById)) {
-                                    $futebol->insertJogadores($jogadorId, $jogadorNome, $camisa, $nomePosicao, $sigla);
+                                    $futebol->insertJogadores($jogadorId, $jogadorNome, $camisa, $nomePosicao, $sigla, $idTime);
                                 }
 
                                 $futebol->insertEscalacaoPartida($partida->id, $jogadorId, null, $ordem, 0, 'mandante');
@@ -305,7 +307,7 @@ class Api extends Controller
                                     $golPenalti = empty($gol['penalti']) ? false : true;
                                     $golContra = empty($gol['gol_contra']) ? false : true;
                                     
-                                    $futebol->insertGols($partida->id, $jogadorIdGol, $minutoGol, $periodoGol, $golPenalti, $golContra);
+                                    $futebol->insertGols($partida->id, $jogadorIdGol, $minutoGol, $periodoGol, $golPenalti, $golContra, 'mandante');
                                 }
                             }
 
@@ -354,11 +356,12 @@ class Api extends Controller
                                     $nomePosicao = 'Não definido';
                                     $sigla = 'ND';
                                 }
+                                $idTime = $dadosPartida['time_visitante']['time_id'];
                                 
-                                $jogadorById = $futebol->getJogadorById($jogadorId);
+                                $jogadorById = $futebol->getJogadores($jogadorId);
                                 
                                 if(empty($jogadorById)) {
-                                    $futebol->insertJogadores($jogadorId, $jogadorNome, $camisa, $nomePosicao, $sigla);
+                                    $futebol->insertJogadores($jogadorId, $jogadorNome, $camisa, $nomePosicao, $sigla, $idTime);
                                 }
 
                                 $futebol->insertEscalacaoPartida($partida->id, $jogadorId, null, $ordem, 1, 'visitante');
@@ -376,11 +379,12 @@ class Api extends Controller
                                     $nomePosicao = 'Não definido';
                                     $sigla = 'ND';
                                 }
+                                $idTime = $dadosPartida['time_visitante']['time_id'];
                                 
-                                $jogadorById = $futebol->getJogadorById($jogadorId);
+                                $jogadorById = $futebol->getJogadores($jogadorId);
                                 
                                 if(empty($jogadorById)) {
-                                    $futebol->insertJogadores($jogadorId, $jogadorNome, $camisa, $nomePosicao, $sigla);
+                                    $futebol->insertJogadores($jogadorId, $jogadorNome, $camisa, $nomePosicao, $sigla, $idTime);
                                 }
 
                                 $futebol->insertEscalacaoPartida($partida->id, $jogadorId, null, $ordem, 0, 'visitante');
@@ -405,7 +409,7 @@ class Api extends Controller
                                     $golPenalti = empty($gol['penalti']) ? false : true;
                                     $golContra = empty($gol['gol_contra']) ? false : true;
                                     
-                                    $futebol->insertGols($partida->id, $jogadorIdGol, $minutoGol, $periodoGol, $golPenalti, $golContra);
+                                    $futebol->insertGols($partida->id, $jogadorIdGol, $minutoGol, $periodoGol, $golPenalti, $golContra, 'visitante');
                                 }
                             }
 
@@ -422,7 +426,12 @@ class Api extends Controller
 
                             $futebol->insertEstatisticas($partida->id, $partida->id_time_visitante, $placar_visitante, $posse_bola_visitante, $escanteios_visitante, $impedimentos_visitante, $faltas_visitante, $passes_total_visitante, $passes_completos_visitante, $passes_errados_visitante, $passes_precisao_visitante, $finalizacao_total_visitante, $finalizacao_no_gol_visitante, $finalizacao_pra_fora_visitante, $finalizacao_na_trave_visitante, $finalizacao_bloqueado_visitante, $finalizacao_precisao_visitante, $cartoes_amarelos_visitante, $cartoes_vermelhos_visitante, $defesas_visitante, $desarmes_visitante, $escalacaoMandante);
                             $futebol->insertEstatisticas($partida->id, $partida->id_time_mandante, $placar_mandante, $posse_bola_mandante, $escanteios_mandante, $impedimentos_mandante, $faltas_mandante, $passes_total_mandante, $passes_completos_mandante, $passes_errados_mandante, $passes_precisao_mandante, $finalizacao_total_mandante, $finalizacao_no_gol_mandante, $finalizacao_pra_fora_mandante, $finalizacao_na_trave_mandante, $finalizacao_bloqueado_mandante, $finalizacao_precisao_mandante, $cartoes_amarelos_mandante, $cartoes_vermelhos_mandante, $defesas_mandante, $desarmes_mandante, $escalacaoVisitante);
-                            $previsoes = $futebol->getPrevisoesByIdPartida($partida->id);
+                            $previsoes = $futebol->getPrevisoes(null, $partida->id);
+
+                            if($partida->status === 'agendado') {
+                                $futebol->updateStatusPartida($partida->id, $dadosPartida['status']);
+                            }
+
                             if(!empty($previsoes)){
                                 foreach ($previsoes as $previsao) {
                                     if($previsao->placar_mandante === $placar_mandante && $previsao->placar_visitante === $placar_visitante) {
@@ -441,6 +450,37 @@ class Api extends Controller
                                 }
                             }
                         }
+
+                        $gols = $dadosPartida['gols'];
+
+                        if(!empty($gols['visitante'])){
+                            foreach ($gols['visitante'] as $gol) {
+                                $jogadorIdGol = $gol['atleta']['atleta_id'];
+                                $minutoGol = $gol['minuto'];
+                                $periodoGol = $gol['periodo'];
+                                $golPenalti = empty($gol['penalti']) ? false : true;
+                                $golContra = empty($gol['gol_contra']) ? false : true;
+
+                                $gol = $futebol->getGol($partida->id, $jogadorIdGol, $minutoGol);
+                                
+                                $futebol->updateGols($gol[0]->id, 'visitante');
+                            }
+                        }
+
+                        if(!empty($gols['mandante'])){
+                            foreach ($gols['mandante'] as $gol) {
+                                $jogadorIdGol = $gol['atleta']['atleta_id'];
+                                $minutoGol = $gol['minuto'];
+                                $periodoGol = $gol['periodo'];
+                                $golPenalti = empty($gol['penalti']) ? false : true;
+                                $golContra = empty($gol['gol_contra']) ? false : true;
+                                
+                                $gol = $futebol->getGol($partida->id, $jogadorIdGol, $minutoGol);
+                                
+                                $futebol->updateGols($gol[0]->id, 'mandante');
+                            }
+                        }
+
                         $rodada = $dadosPartida['campeonato']['rodada_atual']['rodada']; // rodada atual
                         if(empty($dadosPartida['estadio'])) {
                             $estadio = 'Não definido';

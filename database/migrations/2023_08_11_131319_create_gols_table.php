@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('periodo');
             $table->boolean('penalti');
             $table->boolean('contra');
+            $table->string('time', 50);
             $table->foreign('jogador_id')->references('id')->on('jogadores');
             $table->foreign('partida_id')->references('id')->on('partidas');
         });
