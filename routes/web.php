@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User;
 use App\Http\Controllers\Api;
 use App\Http\Controllers\Futebol;
+use App\Http\Controllers\CheckoutController;
 
 Route::get('/', [User::class, 'index'])->name('home');
 Route::get('/login', [User::class, 'login'])->name('login');
@@ -19,6 +20,7 @@ Route::get('/classificacao/{rodada?}', [Futebol::class, 'classificacao'])->name(
 Route::get('/detalhes_partida/{partida_id}', [Futebol::class, 'detalhes_partida'])->name('detalhes_partida');
 Route::get('/estatisticas', [Futebol::class, 'estatisticas'])->name('estatisticas');
 
+Route::post('/criarCheckout', [CheckoutController::class, 'criarCheckout'])->name('criarCheckout');
 Route::post('/profile', [User::class, 'profile'])->name('profile');
 Route::post('/estatisticas', [Futebol::class, 'estatisticas'])->name('estatisticas');
 Route::post('/register_user', [User::class, 'register_user'])->name('register_user');

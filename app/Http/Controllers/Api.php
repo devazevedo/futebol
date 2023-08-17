@@ -44,13 +44,9 @@ class Api extends Controller
 
             return view('apis', $data);
         }
-
-        //chaves conta principal
-        // $bearerToken = 'live_2b41b3a47aa7678d8b15d0e3737529';
-        // $bearerToken = 'test_74cd948f12857040d7801cc8c28bcb';
-
-        //chaves segunda conta
-        $bearerToken = 'live_15a06652e8949ebe225ec6b8c60239';
+        
+        $bearerToken = env('TOKEN_API_FUTEBOL');
+        
 
         if ($api[0]->id !== 4) {
             $response = Http::withHeaders([

@@ -31,8 +31,8 @@
                     <div class="col-lg-4">
                         <div class="form-group col-lg-12" style="display: flex; align-items: center; flex-direction: column;">
                             <label for="image">Imagem</label>
-                            @if ($imagem)
-                                <img id="previewImage" src="{{ asset($imagem) }}" alt="Imagem do perfil"
+                            @if (session()->get('profileImg'))
+                                <img id="previewImage" src="{{ asset(session()->get('profileImg')) }}" alt="Imagem do perfil"
                                     class="profile-image">
                             @else
                                 <img id="previewImage" src="{{ asset('img/user.png') }}" alt="Imagem do perfil"
@@ -46,13 +46,13 @@
                             <label for="email">Email</label>
                             <input type="email" id="email" name="email" class="form-control"
                                 required
-                                value="{{ $email }}" placeholder="Informe seu email">
+                                value="{{ session()->get('email') }}" placeholder="Informe seu email">
                         </div>
                         <div class="form-group col-lg-12">
                             <label for="celular">Celular</label>
                             <input type="text" id="celular" name="celular" class="form-control"
                                 required
-                                value="{{ $celular }}" placeholder="Informe seu celular">
+                                value="{{ session()->get('phone') }}" placeholder="Informe seu celular">
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -73,12 +73,64 @@
                             <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="form-control"
                                 placeholder="Confirme sua nova senha">
                         </div>
+                    </div>
+                </div>
+                <div class="content-title mt-4 mb-4">
+                    <i class="icon icofont-money-bag mr-2"></i>
+                    <div>
+                        <h1>Saldo</h1>
+                        <h2>Acompanhe seu saldo e suas configurações de previsões</h2>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div class="col-lg-4 mt-4 d-flex">
+                        <div class="form-group col-lg-12" style="display: flex; align-items: center; justify-content: center; margin-bottom: 2.6rem;">
+                            <h1>R$ {{ number_format(session()->get('saldo'), 2, ',', '.') }}</h1>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mt-4">
+                        <div class="form-group col-lg-12">
+                            <label for="previsao_paga">Previsão Paga</label>
+                            <select class="form-control" name="previsao_paga" id="previsao_paga">
+                                <option <?= session()->get('previsao_paga') == 1 ? '' : 'selected' ?> value="0">Não</option>
+                                <option <?= session()->get('previsao_paga') == 1 ? 'selected' : '' ?> value="1">Sim</option>
+                            </select>
+                        </div>
                         <div class="form-group col-lg-12 mt-2" style="display: flex; justify-content: flex-end;">
                             <input class="btn btn-success" type="submit" value="Salvar">
                         </div>
                     </div>
                 </div>
             </form>
+            <div class="col-lg-4">
+                <h1 class="mb-4">Adicionar saldo:</h1>
+                <div class="d-flex" style="justify-content: space-around">
+                    <form action="{{ route('criarCheckout') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="reference_id" value="1">
+                        <input type="hidden" name="name_item" value="Recarga">
+                        <input type="hidden" name="quantity" value="1">
+                        <input type="hidden" name="unit_amount" value="1000">
+                        <input class="btn btn-primary" type="submit" value="10,00">
+                    </form>
+                    <form action="{{ route('criarCheckout') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="reference_id" value="1">
+                        <input type="hidden" name="name_item" value="Recarga">
+                        <input type="hidden" name="quantity" value="1">
+                        <input type="hidden" name="unit_amount" value="5000">
+                        <input class="btn btn-primary" type="submit" value="50,00">
+                    </form>
+                    <form action="{{ route('criarCheckout') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="reference_id" value="1">
+                        <input type="hidden" name="name_item" value="Recarga">
+                        <input type="hidden" name="quantity" value="1">
+                        <input type="hidden" name="unit_amount" value="10000">
+                        <input class="btn btn-primary" type="submit" value="100,00">
+                    </form>
+                </div>
+            </div>
         </div>
     </main>
 @endsection

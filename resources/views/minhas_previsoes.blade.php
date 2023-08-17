@@ -11,7 +11,7 @@
             <i class="icon icofont-bullseye mr-2"></i>
             <div>
                 <h1>Minhas Previsões</h1>
-                <h2>Reveja suas previsões e faça novas.</h2>
+                <h2>Reveja suas previsões e faça novas. <i onclick="infoPrevisoes()" style="font-size: 1.2rem; color: #1976d2; cursor: pointer;" class="icofont-info-circle"></i></h2>
             </div>
         </div>
         <div class="col-lg-12" style="display: flex;">
@@ -243,8 +243,30 @@
             </div>
         </div>
     </main>
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="infoModalLabel">Como Funcionam as Previsões</h5>
+                </div>
+                <div class="modal-body">
+                    <p>- As previsões podem ser fictícias ou pagas, você pode alternar isso no seu perfil.</p>
+                    <p>- Nesse momento suas previsões estão no modo <?= session()->get('previsao_paga') == 1 ? 'pago' : 'fictício' ?>.</p>
+                    <p>- Para as previsões no modo pago o dinheiro vai ser descontado e vai valer como previsão paga no momento que a ultima rodada ter a previsão efetuada.</p>
+                    <p>- No modo pago caso você efetue a previsão de apenas 9 rodadas não será debitado valor da sua carteira logo você não estará concorrendo ao montante final.</p>
+                    <p>- As previsões podem ser editadas até o início da primeira rodada(para as edições não será cobrado valor adicional).</p>
+                    <p>- Caso você tenha sido o maior pontuador da rodada e opte pelas previsões no modo pago o dinheiro cairá na sua carteira em até 3 dias utéis.</p>
+                    <p>- Se você for o único a fazer previsões na rodada o dinheiro será reembolsado na sua carteira.</p>
+                    <p>- Para as previsões no modo fictício funciona da mesma forma mas não é descontado dinheiro da sua carteira e você não recebera nenhum valor caso seja o vencedor.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const enviarPrevisaoBtns = document.querySelectorAll('.enviar-previsao-btn');
@@ -273,4 +295,8 @@
             });
         });
     });
+
+    function infoPrevisoes() {
+        $('#infoModal').modal('show');
+    }
 </script>

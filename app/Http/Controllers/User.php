@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Users;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,7 +30,7 @@ class User extends Controller
             $previsoesRodadaAtual = $futebol->getPrevisoes($user_id, null, $campeonato[0]->rodada_atual);
             $previsaoByUser = $futebol->getPrevisoes($user_id);
 
-            if(!empty($previsaoByUser)) {
+            if(!empty($previsaoByUser) && $previsaoByUser[0]->status != 'aguardando') {
                 $previsoes_certas = 0;
                 $previsoes_erradas = 0;
                 $previsoes_parcial = 0;
@@ -127,16 +128,20 @@ class User extends Controller
                     'name' => $user[0]->name,
                     'lastname' => $user[0]->lastname,
                     'email' => $user[0]->email,
+                    'cpf' => $user[0]->cpf,
                     'phone' => $user[0]->phone,
                     'isAdmin' => $user[0]->admin,
-                    'profileImg' => $user[0]->imagem
+                    'profileImg' => $user[0]->imagem,
+                    'saldo' => $user[0]->saldo,
+                    'previsao_paga' => $user[0]->previsao_paga
                 ]);
+                
 
                 $campeonato = $futebol->getCampeonatoById(10);
                 $previsoesRodadaAtual = $futebol->getPrevisoes($user[0]->id, null, $campeonato[0]->rodada_atual);
                 $previsaoByUser = $futebol->getPrevisoes($user[0]->id);
 
-                if(!empty($previsaoByUser)) {
+                if(!empty($previsaoByUser) && $previsaoByUser[0]->status != 'aguardando') {
                     $previsoes_certas = 0;
                     $previsoes_erradas = 0;
                     $previsoes_parcial = 0;
@@ -318,6 +323,8 @@ class User extends Controller
 
     public function profile(Request $request)
     {
+        // echo $request->input('previsao_paga');
+        // exit;
         $users = new Users;
         $user_id = session()->get('userId');
         $user = $users->getUsers($user_id);
@@ -342,8 +349,15 @@ class User extends Controller
                 $imagePath = $user[0]->imagem;
             }
 
-            if($email !== $user[0]->email || $phone !== $user[0]->phone || !empty($request->file('image'))) {
-                $users->updateUser($user_id, $email, $phone, $imagePath);
+            if($email !== $user[0]->email || $phone !== $user[0]->phone || !empty($request->file('image')) || $request->input('previsao_paga') != $user[0]->previsao_paga) {
+                $users->updateUser($user_id, $email, $phone, $imagePath, $request->input('previsao_paga'));
+                session()->put([
+                    'userId' => $user_id,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'profileImg' => $imagePath,
+                    'previsao_paga' => $request->input('previsao_paga')
+                ]);
                 Session::flash('success', 'Informações atualizadas com sucesso!');
             }
 
@@ -365,13 +379,7 @@ class User extends Controller
                     if ($request->input('newPassword') !== $request->input('confirmNewPassword')) {
                         Session::flash('error', 'As senhas informadas não conferem!');
 
-                        $data = [
-                            'celular' => $user[0]->phone,
-                            'email' => $user[0]->email,
-                            'imagem' => $user[0]->imagem
-                        ];
-
-                        return view('profile', $data);
+                        return view('profile');
                     } else {
                         $hashedPassword = Hash::make($request->input('newPassword'));
                         $users->updatePassword($user_id, $hashedPassword);
@@ -380,13 +388,7 @@ class User extends Controller
                 } else {
                     Session::flash('error', 'A senha informada está incorreta');
 
-                    $data = [
-                        'celular' => $user[0]->phone,
-                        'email' => $user[0]->email,
-                        'imagem' => $user[0]->imagem
-                    ];
-
-                    return view('profile', $data);
+                    return view('profile');
                 }
             }
 
@@ -394,14 +396,53 @@ class User extends Controller
 
         $user = $users->getUsers($user_id);
 
-        $data = [
-            'celular' => $user[0]->phone,
-            'email' => $user[0]->email,
-            'imagem' => $user[0]->imagem
-        ];
+        $transacoes = $users->getTransacoes($user_id);
+        
+        $token = env('TOKEN_PAG_SEGURO');
+
+        foreach ($transacoes as $transacao) {
+            if(!empty($transacao->consultar_checkout)) {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $token,
+                    'Content-Type' => 'application/json',
+                ])->get($transacao->consultar_checkout);
+                
+                $responseData = json_decode($response->getBody(), true); // Convertendo o JSON para um array associativo
+
+                
+                if(!empty($responseData['orders'])) {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $token,
+                        'Content-Type' => 'application/json',
+                    ])->get($responseData['orders'][0]['links'][0]['href']);
+
+                    $responseData = json_decode($response->getBody(), true); // Convertendo o JSON para um array associativo
+
+                    if($responseData['charges'][0]['payment_response']['code'] == 20000) {
+                        $recargaSaldo = $responseData['charges'][0]['amount']['value'];
+                        $saldoNovo = ($recargaSaldo / 100) + $user[0]->saldo;
+                        session()->put('saldo', $saldoNovo);
+                        $users->updateSaldo($user[0]->id, $saldoNovo);
+                        $users->updateStatusTransacao($responseData['charges'][0]['reference_id'], 'pago');
+                    }
+                } else {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $token,
+                        'Content-Type' => 'application/json',
+                    ])->post($responseData['links'][2]['href']);
+
+                    $responseData2 = json_decode($response->getBody(), true); // Convertendo o JSON para um array associativo
+
+                    if($responseData2['status'] == 'INACTIVE') {
+                        $users->updateStatusTransacao($responseData['reference_id'], 'inativo');
+                    }
+                }
+            }
+        }
 
 
-        return view('profile', $data);
+
+        return view('profile');
     }
 
     // public function register_partners(Request $request)

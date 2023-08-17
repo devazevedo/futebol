@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -17,8 +18,10 @@ return new class extends Migration
             $table->string('password', 60);
             $table->string('name', 50);
             $table->string('lastname', 50);
+            $table->string('cpf', 11);
             $table->string('phone', 14);
             $table->boolean('admin')->default(0);
+            $table->boolean('previsao_paga')->default(0);
             $table->float('saldo')->default(0);
             $table->timestamps();
         });
