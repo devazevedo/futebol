@@ -21,9 +21,9 @@ class Users
         return DB::select($query);
     }
 
-    public function insertUser($name, $lastname, $email, $hashedPassword, $phone) 
+    public function insertUser($name, $lastname, $email, $hashedPassword, $phone, $cpf) 
     {
-        DB::insert("INSERT INTO users VALUES(0, ?, ?, ?, ?, ?, 0, NOW(), NOW(), 0, null)", ["$email", "$hashedPassword", "$name", "$lastname", "$phone"]);
+        DB::insert("INSERT INTO users VALUES(0, ?, ?, ?, ?, ?, ?, 0, 0, 0, NOW(), NOW(), null)", ["$email", "$hashedPassword", "$name", "$lastname", "$cpf", "$phone"]);
     }
 
     public function updateUser($id, $email, $celular, $imagePath, $previsao_paga)

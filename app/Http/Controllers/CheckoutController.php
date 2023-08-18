@@ -29,7 +29,7 @@ class CheckoutController extends Controller
         $params = [
             'reference_id' => $reference_id_transaction,
             'customer' => [
-                'name' => session()->get('name'),
+                'name' => session()->get('name'). ' '. session()->get('lastname'),
                 'email' => session()->get('email'),
                 'tax_id' => session()->get('cpf'),
                 'phone' => [

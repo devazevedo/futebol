@@ -290,7 +290,7 @@ class Api extends Controller
                             $tecnicoById = $futebol->getTreinadorById($idTecnicoMandante);
 
                             if(empty($tecnicoById)) {
-                                $futebol->insertTreinadores($idTecnicoMandante, $nomeTecnicoMandante);
+                                $futebol->insertTreinadores($idTecnicoMandante, $nomeTecnicoMandante, $idTime);
                             }
 
                             $futebol->insertEscalacaoPartida($partida->id, null, $idTecnicoMandante, 0, 2, 'mandante');
@@ -392,7 +392,7 @@ class Api extends Controller
                             $tecnicoById = $futebol->getTreinadorById($idTecnicoVisitante);
 
                             if(empty($tecnicoById)) {
-                                $futebol->insertTreinadores($idTecnicoVisitante, $nomeTecnicoVisitante);
+                                $futebol->insertTreinadores($idTecnicoVisitante, $nomeTecnicoVisitante, $idTime);
                             }
 
                             $futebol->insertEscalacaoPartida($partida->id, null, $idTecnicoVisitante, 0, 2, 'visitante');

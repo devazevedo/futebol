@@ -252,6 +252,11 @@
                 <div class="modal-body">
                     <p>- As previsões podem ser fictícias ou pagas, você pode alternar isso no seu perfil.</p>
                     <p>- Nesse momento suas previsões estão no modo <?= session()->get('previsao_paga') == 1 ? 'pago' : 'fictício' ?>.</p>
+                    {{-- @if ()
+                        
+                    @else
+                        
+                    @endif --}}
                     <p>- Para as previsões no modo pago o dinheiro vai ser descontado e vai valer como previsão paga no momento que a ultima rodada ter a previsão efetuada.</p>
                     <p>- No modo pago caso você efetue a previsão de apenas 9 rodadas não será debitado valor da sua carteira logo você não estará concorrendo ao montante final.</p>
                     <p>- As previsões podem ser editadas até o início da primeira rodada(para as edições não será cobrado valor adicional).</p>

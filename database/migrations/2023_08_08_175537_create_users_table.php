@@ -24,6 +24,7 @@ return new class extends Migration
             $table->boolean('previsao_paga')->default(0);
             $table->float('saldo')->default(0);
             $table->timestamps();
+            $table->string('imagem');
         });
     }
 

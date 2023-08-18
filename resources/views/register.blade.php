@@ -13,6 +13,9 @@
 @if (empty($phone))
     {{ $phone = '' }}
 @endif
+@if (empty($cpf))
+    {{ $cpf = '' }}
+@endif
 
 <!DOCTYPE html>
 <html lang="en">
@@ -81,6 +84,11 @@
                     <label for="passwordConfirm">Confirmação de Senha</label>
                     <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-control"
                         placeholder="Confirme sua senha">
+                </div>
+                <div class="form-group col-lg-6">
+                    <label for="cpf">CPF</label>
+                    <input type="text" id="cpf" name="cpf" class="form-control"
+                        value="{{ $cpf ? $cpf : old('cpf') }}" placeholder="Informe seu cpf">
                 </div>
                 <div class="form-group col-lg-6">
                     <label for="phone">Celular</label>

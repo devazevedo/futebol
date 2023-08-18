@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('treinadores', function (Blueprint $table) {
             $table->bigInteger('id')->primary();
             $table->string('nome', 50);
+            $table->bigInteger('time_id');
+            $table->foreign('time_id')->references('id')->on('times');
         });
     }
 

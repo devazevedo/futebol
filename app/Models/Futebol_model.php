@@ -225,7 +225,7 @@ class Futebol_model
             $query .= " WHERE c.rodada_atual = p.rodada";
         }
 
-        $query .= " ORDER BY STR_TO_DATE(p.data_realizacao, '%d/%m/%Y')
+        $query .= " ORDER BY STR_TO_DATE(CONCAT(p.data_realizacao, ' ', p.hora_realizacao), '%d/%m/%Y %H:%i:%s')
                 LIMIT 10";
 
         if ($rodada !== null) {
@@ -271,22 +271,23 @@ class Futebol_model
     {
         $query = "SELECT * FROM jogadores";
 
-        if(!empty($id)) {
+        if(!empty($jogadorId)) {
             $query .= " WHERE id = $jogadorId";
         }
 
         return DB::select($query);
     }
 
-    public function insertJogadores($id, $nome, $camisa, $posicao, $sigla)
+    public function insertJogadores($id, $nome, $camisa, $posicao, $sigla, $idTime)
     {
-        $query = "INSERT INTO jogadores VALUES(?, ?, ?, ?, ?)";
+        $query = "INSERT INTO jogadores VALUES(?, ?, ?, ?, ?, ?)";
         $values = [
             $id,
             $nome,
             $camisa,
             $posicao,
-            $sigla
+            $sigla,
+            $idTime
         ];
 
         DB::insert($query, $values);
@@ -337,12 +338,13 @@ class Futebol_model
         DB::insert($query, $values);
     }
 
-    public function insertTreinadores($id, $nome)
+    public function insertTreinadores($id, $nome, $idTime)
     {
-        $query = "INSERT INTO treinadores VALUES(?, ?)";
+        $query = "INSERT INTO treinadores VALUES(?, ?, ?)";
         $values = [
             $id,
-            $nome
+            $nome,
+            $idTime
         ];
 
         DB::insert($query, $values);

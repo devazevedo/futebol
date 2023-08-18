@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->float('valor');
-            $table->string('consultar_checkout');
+            $table->string('consultar_checkout')->nullable();
             $table->string('status');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users');

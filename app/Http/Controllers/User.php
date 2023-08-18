@@ -27,7 +27,9 @@ class User extends Controller
 
             $user = $users->getUsers($user_id);
             $campeonato = $futebol->getCampeonatoById(10);
-            $previsoesRodadaAtual = $futebol->getPrevisoes($user_id, null, $campeonato[0]->rodada_atual);
+            if($campeonato) {
+                $previsoesRodadaAtual = $futebol->getPrevisoes($user_id, null, $campeonato[0]->rodada_atual);
+            }
             $previsaoByUser = $futebol->getPrevisoes($user_id);
 
             if(!empty($previsaoByUser) && $previsaoByUser[0]->status != 'aguardando') {
@@ -138,7 +140,9 @@ class User extends Controller
                 
 
                 $campeonato = $futebol->getCampeonatoById(10);
-                $previsoesRodadaAtual = $futebol->getPrevisoes($user[0]->id, null, $campeonato[0]->rodada_atual);
+                if($campeonato) {
+                    $previsoesRodadaAtual = $futebol->getPrevisoes($user[0]->id, null, $campeonato[0]->rodada_atual);
+                }
                 $previsaoByUser = $futebol->getPrevisoes($user[0]->id);
 
                 if(!empty($previsaoByUser) && $previsaoByUser[0]->status != 'aguardando') {
@@ -238,6 +242,7 @@ class User extends Controller
                 'password' => 'required',
                 'passwordConfirm' => 'required',
                 'phone' => 'required',
+                'cpf' => 'required',
                 'password' => [
                     'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/',
                 ]
@@ -251,6 +256,7 @@ class User extends Controller
                 'password.regex' => 'A senha deve conter pelo menos 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial!',
                 'passwordConfirm.required' => 'Confirmação de senha é um campo obrigatório!',
                 'phone.required' => 'Celular é um campo obrigatório!',
+                'cpf.required' => 'CPF é um campo obrigatório!',
             ]
         );
 
@@ -261,6 +267,7 @@ class User extends Controller
         $password = $request->input('password');
         $passwordConfirm = $request->input('passwordConfirm');
         $phone = $request->input('phone');
+        $cpf = $request->input('cpf');
 
         if ($email !== $emailConfirm) {
             $data = [
@@ -302,7 +309,7 @@ class User extends Controller
 
         $hashedPassword = Hash::make($password);
 
-        $model->insertUser($name, $lastname, $email, $hashedPassword, $phone);
+        $model->insertUser($name, $lastname, $email, $hashedPassword, $phone, $cpf);
 
         return view('login');
     }
