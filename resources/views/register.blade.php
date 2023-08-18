@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="{{ asset('css/icofont.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/comum.css') }}">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="short icon" href="{{ asset('img/icon2.ico') }}" />
     <title>Predict N' Score</title>
 </head>
 
@@ -77,13 +78,25 @@
                 </div>
                 <div class="form-group col-lg-6">
                     <label for="password">Senha</label>
-                    <input type="password" id="password" name="password" class="form-control"
-                        placeholder="Informe sua senha">
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Informe sua senha">
+                        <div class="input-group-append">
+                            <span class="input-group-text toggle-password" id="toggle-password">
+                                <i class="icofont-eye"></i>
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group col-lg-6">
                     <label for="passwordConfirm">Confirmação de Senha</label>
-                    <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-control"
-                        placeholder="Confirme sua senha">
+                    <div class="input-group">
+                        <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-control" placeholder="Confirme sua senha">
+                        <div class="input-group-append">
+                            <span class="input-group-text toggle-password" id="toggle-password-confirm">
+                                <i class="icofont-eye"></i>
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group col-lg-6">
                     <label for="cpf">CPF</label>
@@ -116,4 +129,43 @@
             }, 5000);
         });
     };
+
+    $(document).ready(function() {
+        $('#cpf').mask('000.000.000-00', { reverse: true });
+    });
+
+    $(document).ready(function() {
+        $('#phone').mask('(00) 00000-0000');
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const passwordInput = document.getElementById("password");
+        const passwordConfirmInput = document.getElementById("passwordConfirm");
+        const togglePasswordButton = document.getElementById("toggle-password");
+        const togglePasswordConfirmButton = document.getElementById("toggle-password-confirm");
+
+        function togglePasswordVisibility(inputElement, toggleButton) {
+            if (inputElement.type === "password") {
+                inputElement.type = "text";
+                toggleButton.innerHTML = '<i class="icofont-eye-blocked"></i>';
+            } else {
+                inputElement.type = "password";
+                toggleButton.innerHTML = '<i class="icofont-eye"></i>';
+            }
+        }
+
+        togglePasswordButton.addEventListener("click", function () {
+            togglePasswordVisibility(passwordInput, togglePasswordButton);
+        });
+
+        togglePasswordConfirmButton.addEventListener("click", function () {
+            togglePasswordVisibility(passwordConfirmInput, togglePasswordConfirmButton);
+        });
+    });
+
+    $(document).ready(function() {
+        $('#cpf').mask('000.000.000-00', { reverse: true });
+        $('#phone').mask('(00) 00000-0000');
+    })
+
 </script>

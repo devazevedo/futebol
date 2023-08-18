@@ -23,14 +23,13 @@ class Users
 
     public function insertUser($name, $lastname, $email, $hashedPassword, $phone, $cpf) 
     {
-        DB::insert("INSERT INTO users VALUES(0, ?, ?, ?, ?, ?, ?, 0, 0, 0, NOW(), NOW(), null)", ["$email", "$hashedPassword", "$name", "$lastname", "$cpf", "$phone"]);
+        return DB::insert("INSERT INTO users VALUES(0, ?, ?, ?, ?, ?, ?, 0, 0, 0, NOW(), NOW(), null)", ["$email", "$hashedPassword", "$name", "$lastname", "$cpf", "$phone"]);
     }
 
-    public function updateUser($id, $email, $celular, $imagePath, $previsao_paga)
+    public function updateUser($id, $celular, $imagePath, $previsao_paga)
     {
         $query = "UPDATE users 
-                  SET email = '$email',
-                      phone = '$celular',
+                  SET phone = '$celular',
                       imagem = '$imagePath',
                       previsao_paga = $previsao_paga
                   WHERE id = $id";

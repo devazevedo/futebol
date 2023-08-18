@@ -14,6 +14,16 @@
 </head>
 
 <body>
+    @if (Session::has('success'))
+        <div class="msg-alert alert alert-success">
+            {{ Session::get('success') }}
+        </div>
+    @endif
+    @if (Session::has('error'))
+        <div class="msg-alert alert alert-danger">
+            {{ Session::get('error') }}
+        </div>
+    @endif
     @if ($errors->any())
         <div class="msg-alert alert alert-danger p-2 mb-3">
             @foreach ($errors->all() as $error)
@@ -39,8 +49,14 @@
                 </div>
                 <div class="form-group">
                     <label for="password">Senha</label>
-                    <input type="password" id="password" name="password" class="form-control"
-                        placeholder="Informe a senha">
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Informe a senha">
+                        <div class="input-group-append">
+                            <span id="toggle-password" class="input-group-text">
+                                <i class="icofont-eye"></i>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card-footer">
@@ -49,6 +65,23 @@
             </div>
         </div>
     </form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordInput = document.getElementById("password");
+            const togglePasswordButton = document.getElementById("toggle-password");
+
+            togglePasswordButton.addEventListener("click", function () {
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    togglePasswordButton.innerHTML = '<i class="icofont-eye-blocked"></i>';
+                } else {
+                    passwordInput.type = "password";
+                    togglePasswordButton.innerHTML = '<i class="icofont-eye"></i>';
+                }
+            });
+        });
+
+    </script>
 </body>
 
 </html>

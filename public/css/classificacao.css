@@ -130,3 +130,8 @@ input[type=number] {
     border-radius: 8px;
     box-shadow: 11px 10px 27px -1px rgba(0,0,0,0.62)
 }
+
+.alert {
+    position: absolute;
+    right: 4.3vw;
+}

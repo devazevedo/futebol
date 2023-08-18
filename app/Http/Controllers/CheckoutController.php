@@ -60,11 +60,10 @@ class CheckoutController extends Controller
         if (isset($responseData['links'][1]['href'])) {
             $pagSeguroCheckoutLink = $responseData['links'][1]['href'];
             $model->updateTransacao($reference_id_transaction, $responseData['links'][0]['href']);
-            // Redireciona o usuário para a URL do PagSeguro em uma nova janela usando JavaScript
-            echo "<script>window.open('$pagSeguroCheckoutLink', '_blank');</script>";
-            return view('profile');
+            session()->put('pagSeguroCheckoutLink', $pagSeguroCheckoutLink);
+            return redirect()->route('profile')->with('success', 'Pagamento criado com sucesso!');
         } else {
-            // Lógica de tratamento de erro ou outra ação em caso de falha
+            return redirect()->route('profile')->with('error', 'Tivemos um problema ao realizar a recarga no momento, tente novamente mais tarde!');
         }
     }
 }

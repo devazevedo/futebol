@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\BoasVindasEmail;
 use App\Models\Futebol_model;
 use Illuminate\Http\Request;
 use App\Models\Users;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -269,6 +270,9 @@ class User extends Controller
         $phone = $request->input('phone');
         $cpf = $request->input('cpf');
 
+        $phone = preg_replace("/[^0-9]/", "", $phone);
+        $cpf = preg_replace("/[^0-9]/", "", $cpf);
+
         if ($email !== $emailConfirm) {
             $data = [
                 'status' => 0,
@@ -309,8 +313,9 @@ class User extends Controller
 
         $hashedPassword = Hash::make($password);
 
-        $model->insertUser($name, $lastname, $email, $hashedPassword, $phone, $cpf);
-
+        Mail::to($email)->send(new BoasVindasEmail());
+        
+        Session::flash('success', 'Usuário cadastrado com sucesso');
         return view('login');
     }
 
@@ -324,14 +329,12 @@ class User extends Controller
             'phone',
             'isAdmin'
         ]);
-
+        
         return view('login');
     }
 
     public function profile(Request $request)
     {
-        // echo $request->input('previsao_paga');
-        // exit;
         $users = new Users;
         $user_id = session()->get('userId');
         $user = $users->getUsers($user_id);
@@ -339,12 +342,10 @@ class User extends Controller
         if($request->isMethod('post')) {
             $request->validate(
                 [
-                    'email' => 'required',
                     'celular' => 'required',
                 ]
             );
 
-            $email = $request->input('email');
             $phone = preg_replace('/\D/', '', $request->input('celular'));
             if(!empty($request->file('image')) && $user[0]->imagem !== $request->file('image')) {
                 if ($user[0]->imagem) {
@@ -356,11 +357,10 @@ class User extends Controller
                 $imagePath = $user[0]->imagem;
             }
 
-            if($email !== $user[0]->email || $phone !== $user[0]->phone || !empty($request->file('image')) || $request->input('previsao_paga') != $user[0]->previsao_paga) {
-                $users->updateUser($user_id, $email, $phone, $imagePath, $request->input('previsao_paga'));
+            if($phone !== $user[0]->phone || !empty($request->file('image')) || $request->input('previsao_paga') != $user[0]->previsao_paga) {
+                $users->updateUser($user_id, $phone, $imagePath, $request->input('previsao_paga'));
                 session()->put([
                     'userId' => $user_id,
-                    'email' => $email,
                     'phone' => $phone,
                     'profileImg' => $imagePath,
                     'previsao_paga' => $request->input('previsao_paga')

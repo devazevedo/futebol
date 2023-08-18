@@ -13,3 +13,8 @@
     display: block;
     margin-top: 10px;
 }
+
+.alert {
+    position: fixed;
+    right: 4.3vw;
+}

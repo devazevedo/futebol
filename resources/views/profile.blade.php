@@ -44,9 +44,15 @@
                     <div class="col-lg-4">
                         <div class="form-group col-lg-12">
                             <label for="email">Email</label>
-                            <input type="email" id="email" name="email" class="form-control"
+                            <input disabled type="email" id="email" name="email" class="form-control"
                                 required
                                 value="{{ session()->get('email') }}" placeholder="Informe seu email">
+                        </div>
+                        <div class="form-group col-lg-12">
+                            <label for="cpf">CPF</label>
+                            <input disabled type="text" id="cpf" name="cpf" class="form-control"
+                                required
+                                value="{{ session()->get('cpf') }}" placeholder="Informe seu email">
                         </div>
                         <div class="form-group col-lg-12">
                             <label for="celular">Celular</label>
@@ -58,20 +64,36 @@
                     <div class="col-lg-4">
                         <div class="form-group col-lg-12">
                             <label for="currentPassword">Senha Atual</label>
-                            <input type="password" id="currentPassword" name="currentPassword" class="form-control"
-                                placeholder="Informe sua senha">
+                            <div class="input-group">
+                                <input type="password" id="currentPassword" name="currentPassword" class="form-control" autocomplete="off" placeholder="Informe sua senha">
+                                <div class="input-group-append">
+                                    <span class="input-group-text toggle-password" id="toggle-current-password">
+                                        <i class="icofont-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group col-lg-12">
                             <label for="newPassword">Nova Senha</label>
-                            <input type="password" id="newPassword" name="newPassword" class="form-control"
-                                {{-- pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$" --}}
-                                title="A senha deve conter pelo menos 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial"
-                                placeholder="Informe sua nova senha">
+                            <div class="input-group">
+                                <input type="password" id="newPassword" name="newPassword" class="form-control" autocomplete="off" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$" title="A senha deve conter pelo menos 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial" placeholder="Informe sua nova senha">
+                                <div class="input-group-append">
+                                    <span class="input-group-text toggle-password" id="toggle-new-password">
+                                        <i class="icofont-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group col-lg-12">
                             <label for="confirmNewPassword">Confirmação Nova Senha</label>
-                            <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="form-control"
-                                placeholder="Confirme sua nova senha">
+                            <div class="input-group">
+                                <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="form-control" autocomplete="off" placeholder="Confirme sua nova senha">
+                                <div class="input-group-append">
+                                    <span class="input-group-text toggle-password" id="toggle-confirm-new-password">
+                                        <i class="icofont-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -83,11 +105,6 @@
                     </div>
                 </div>
                 <div class="d-flex">
-                    <div class="col-lg-4 mt-4 d-flex">
-                        <div class="form-group col-lg-12" style="display: flex; align-items: center; justify-content: center; margin-bottom: 2.6rem;">
-                            <h1>R$ {{ number_format(session()->get('saldo'), 2, ',', '.') }}</h1>
-                        </div>
-                    </div>
                     <div class="col-lg-4 mt-4">
                         <div class="form-group col-lg-12">
                             <label for="previsao_paga">Previsão Paga</label>
@@ -96,15 +113,20 @@
                                 <option <?= session()->get('previsao_paga') == 1 ? 'selected' : '' ?> value="1">Sim</option>
                             </select>
                         </div>
-                        <div class="form-group col-lg-12 mt-2" style="display: flex; justify-content: flex-end;">
-                            <input class="btn btn-success" type="submit" value="Salvar">
+                    </div>
+                    <div class="col-lg-4 mt-4 d-flex">
+                        <div class="form-group col-lg-12" style="display: flex; align-items: center; justify-content: center; margin: auto;">
+                            <h1>R$ {{ number_format(session()->get('saldo'), 2, ',', '.') }}</h1>
                         </div>
                     </div>
                 </div>
+                <div class="form-group col-lg-12 mt-2" style="display: flex; justify-content: flex-end; position: absolute; top: 33vw;">
+                    <input class="btn btn-success btn-lg" type="submit" value="Salvar">
+                </div>
             </form>
-            <div class="col-lg-4">
-                <h1 class="mb-4">Adicionar saldo:</h1>
-                <div class="d-flex" style="justify-content: space-around">
+            <div class="col-lg-12">
+                <h1 style="text-align: center;" class="mb-4">Adicionar saldo:</h1>
+                <div class="d-flex col-lg-4" style="justify-content: space-around; margin:auto;">
                     <form action="{{ route('criarCheckout') }}" method="POST">
                         @csrf
                         <input type="hidden" name="reference_id" value="1">
@@ -138,16 +160,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
 <script>
+
+    @if(session()->has('pagSeguroCheckoutLink'))
+            var pagSeguroCheckoutLink = '{{ session('pagSeguroCheckoutLink') }}';
+            @php
+                session()->forget(['pagSeguroCheckoutLink']);
+            @endphp
+            if (pagSeguroCheckoutLink) {
+                window.open(pagSeguroCheckoutLink, '_blank');
+            }
+    @endif
+
+
+    $(document).ready(function() {
+        setTimeout(() => {
+            console.log('entrou');
+            $('.alert').addClass('d-none')
+        }, 2500);
+    });
+
     window.onload = (event) => {
         $(document).ready(function() {
             $('#celular').mask('(00) 00000-0000');
         });
 
         $(document).ready(function() {
-            setTimeout(() => {
-                $('.alert').addClass('d-none')
-            }, 5000);
+            $('#cpf').mask('000.000.000-00', { reverse: true });
         });
+
 
         $(document).ready(function() {
             $('#image').change(function() {
@@ -162,4 +202,35 @@
             });
         });
     };
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const currentPasswordInput = document.getElementById("currentPassword");
+        const newPasswordInput = document.getElementById("newPassword");
+        const confirmNewPasswordInput = document.getElementById("confirmNewPassword");
+        const toggleCurrentPasswordButton = document.getElementById("toggle-current-password");
+        const toggleNewPasswordButton = document.getElementById("toggle-new-password");
+        const toggleConfirmNewPasswordButton = document.getElementById("toggle-confirm-new-password");
+
+        function togglePasswordVisibility(inputElement, toggleButton) {
+            if (inputElement.type === "password") {
+                inputElement.type = "text";
+                toggleButton.innerHTML = '<i class="icofont-eye-blocked"></i>';
+            } else {
+                inputElement.type = "password";
+                toggleButton.innerHTML = '<i class="icofont-eye"></i>';
+            }
+        }
+
+        toggleCurrentPasswordButton.addEventListener("click", function () {
+            togglePasswordVisibility(currentPasswordInput, toggleCurrentPasswordButton);
+        });
+
+        toggleNewPasswordButton.addEventListener("click", function () {
+            togglePasswordVisibility(newPasswordInput, toggleNewPasswordButton);
+        });
+
+        toggleConfirmNewPasswordButton.addEventListener("click", function () {
+            togglePasswordVisibility(confirmNewPasswordInput, toggleConfirmNewPasswordButton);
+        });
+    });
 </script>

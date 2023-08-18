@@ -7,6 +7,12 @@
         use Carbon\Carbon;
     @endphp
     <main class="content">
+        <div class="alert alert-success d-none">
+            <p id="text-success"></p>
+        </div>
+        <div class="alert alert-danger d-none">
+            <p id="text-error"></p>
+        </div>
         <div class="content-title mb-4">
             <i class="icon icofont-bullseye mr-2"></i>
             <div>
@@ -250,19 +256,18 @@
                     <h5 class="modal-title" id="infoModalLabel">Como Funcionam as Previsões</h5>
                 </div>
                 <div class="modal-body">
+                    <p><b>- Nesse momento suas previsões estão no modo <?= session()->get('previsao_paga') == 1 ? 'pago' : 'fictício' ?>.</b></p>
                     <p>- As previsões podem ser fictícias ou pagas, você pode alternar isso no seu perfil.</p>
-                    <p>- Nesse momento suas previsões estão no modo <?= session()->get('previsao_paga') == 1 ? 'pago' : 'fictício' ?>.</p>
-                    {{-- @if ()
-                        
+                    @if (session()->get('previsao_paga') == 1)
+                        <p>- Para as previsões no modo pago o dinheiro vai ser descontado e vai valer como previsão paga no momento que a ultima rodada ter a previsão efetuada.</p>
+                        <p>- No modo pago caso você efetue a previsão de apenas 9 rodadas não será debitado valor da sua carteira logo você não estará concorrendo ao montante final.</p>
+                        <p>- As previsões podem ser editadas até o início da primeira rodada(para as edições não será cobrado valor adicional).</p>
+                        <p>- Caso você tenha sido o maior pontuador da rodada o dinheiro cairá na sua carteira em até 3 dias utéis.</p>
+                        <p>- Se você for o único a fazer previsões na rodada o dinheiro será reembolsado na sua carteira.</p>
                     @else
-                        
-                    @endif --}}
-                    <p>- Para as previsões no modo pago o dinheiro vai ser descontado e vai valer como previsão paga no momento que a ultima rodada ter a previsão efetuada.</p>
-                    <p>- No modo pago caso você efetue a previsão de apenas 9 rodadas não será debitado valor da sua carteira logo você não estará concorrendo ao montante final.</p>
-                    <p>- As previsões podem ser editadas até o início da primeira rodada(para as edições não será cobrado valor adicional).</p>
-                    <p>- Caso você tenha sido o maior pontuador da rodada e opte pelas previsões no modo pago o dinheiro cairá na sua carteira em até 3 dias utéis.</p>
-                    <p>- Se você for o único a fazer previsões na rodada o dinheiro será reembolsado na sua carteira.</p>
-                    <p>- Para as previsões no modo fictício funciona da mesma forma mas não é descontado dinheiro da sua carteira e você não recebera nenhum valor caso seja o vencedor.</p>
+                        <p>- Para as previsões no modo fictício não importa quantas partidas você prever no final da rodada vai aparecer sua pontuação mas você não vai estar concorrendo ao valor final.</p>
+                        <p>- As previsões podem ser editadas até o início da primeira rodada.</p>
+                    @endif
                 </div>
             </div>
         </div>
@@ -291,7 +296,12 @@
                     })
                     .then(response => {
                         if (response.data.status === 1) {
-                            location.reload()
+                            $('#text-success').html(response.data.message)
+                            $('.alert-success').removeClass('d-none')
+                            window.scrollTo(0, 0);
+                            setTimeout(() => {
+                                location.reload()
+                            }, 2500);
                         }
                     })
                     .catch(error => {
